@@ -1389,7 +1389,7 @@
           </p>
           <div class="api-step">
             <span class="step-num">3</span>
-            <span>Replace <code>IOE09XXXXXXXX</code> with your unique application <strong>receipt number</strong> (e.g., <code>IOE0932277583</code>).</span>
+            <span>Replace <code>IOE09XXXXXXXX</code> with your unique application <strong>receipt number</strong>.</span>
           </div>
           <div class="api-step">
             <span class="step-num">4</span>
@@ -1487,10 +1487,10 @@
     <div class="footer-inner">
       <div class="footer-credit">
         Proudly developed with <span class="brand">Claude AI</span> (claude.ai) &nbsp;·&nbsp;
-        In close coordination with <strong>Sohag Kumar Saha</strong>
+        In close supervision with <a href="https://sohagkumarsaha.github.io" target="_blank" rel="noopener noreferrer" class="niem-link"><strong>Sohag Kumar Saha</strong></a>
       </div>
       <div class="footer-right">
-        <span>© 2026 Sohag Kumar Saha · All Rights Reserved</span><br>
+        <span>© 2026 <a href="https://sohagkumarsaha.github.io" target="_blank" rel="noopener noreferrer" class="niem-link">Sohag Kumar Saha</a> · All Rights Reserved</span><br>
         <span>Event codes: <a href="https://niem.github.io/model/5.0/scr/BenefitDocumentStatusCategoryCodeSimpleType/" target="_blank" rel="noopener noreferrer" class="niem-link">NIEM v5.0</a> scr:BenefitDocumentStatusCategoryCodeSimpleType</span>
       </div>
     </div>
@@ -2012,7 +2012,7 @@
           </div>
           <div class="tl-badges"><span class="badge ${style.cls}">${style.label}</span></div>
           <div class="tl-event-desc">${info.desc}</div>
-          ${item.eventId ? `<div class="tl-event-id">Event ID: ${item.eventId} · Date/time based on createdAtTimestamp${item.rawEventDateTime ? ` · eventDateTime: ${item.rawEventDateTime}` : ''}${item.rawEventTimestamp ? ` · eventTimestamp: ${item.rawEventTimestamp}` : ''}</div>` : `<div class="tl-event-id">Date/time based on createdAtTimestamp${item.rawEventDateTime ? ` · eventDateTime: ${item.rawEventDateTime}` : ''}${item.rawEventTimestamp ? ` · eventTimestamp: ${item.rawEventTimestamp}` : ''}</div>`}
+          ${item.eventId ? `<div class="tl-event-id">Event ID: ${item.eventId} · Date/time based on createdAtTimestamp${item.rawEventDateTime ? ` · eventDateTime: ${fmtFullInTZ(item.rawEventTimestamp || item.rawEventDateTime, tz)}` : ''}</div>` : `<div class="tl-event-id">Date/time based on createdAtTimestamp${item.rawEventDateTime ? ` · eventDateTime: ${fmtFullInTZ(item.rawEventTimestamp || item.rawEventDateTime, tz)}` : ''}</div>`}
         </div>
       </div>`;
       }).join('');
