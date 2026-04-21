@@ -1598,7 +1598,7 @@
     let selectedTZ = 'America/Chicago'; // default: Central Time (CT) — CST/CDT
     let currentData = null;
     let themeAuto = true;
-    let geoCoords = null; // {lat, lon} if granted
+
 
     // ─────────────────────────────────────────────────────────────
     // TIMEZONE UTILITIES  (use Intl API — DST-aware)
@@ -1679,48 +1679,26 @@
     function onTZChange() {
       selectedTZ = document.getElementById('tzSelect').value;
       updateClock();
+      if (themeAuto) applyAutoTheme();
       if (currentData) renderAll(currentData);
     }
 
     // ─────────────────────────────────────────────────────────────
     // THEME MANAGEMENT
     // ─────────────────────────────────────────────────────────────
-    function computeSunriseSunset(lat, lon) {
-      /* Returns approximate local solar hours {sunrise, sunset} for today at lat/lon */
-      const now = new Date();
-      const toRad = x => x * Math.PI / 180;
-      const toDeg = x => x * 180 / Math.PI;
-      // Day of year
-      const start = new Date(now.getFullYear(), 0, 0);
-      const n = Math.round((now - start) / 86400000);
-      // Solar declination
-      const decl = -23.45 * Math.cos(toRad((360 / 365) * (n + 10)));
-      // Sunrise/sunset hour angle
-      const cosH = (Math.sin(toRad(-0.833)) - Math.sin(toRad(lat)) * Math.sin(toRad(decl)))
-        / (Math.cos(toRad(lat)) * Math.cos(toRad(decl)));
-      if (cosH < -1) return { sunrise: 0, sunset: 24 };
-      if (cosH > 1) return { sunrise: 12, sunset: 12 };
-      const H = toDeg(Math.acos(cosH));
-      // Equation of time correction
-      const b = toRad((360 / 365) * (n - 81));
-      const eot = 9.87 * Math.sin(2 * b) - 7.53 * Math.cos(b) - 1.5 * Math.sin(b); // minutes
-      // Timezone offset of device
-      const tzOff = -now.getTimezoneOffset() / 60;
-      const tc = 4 * (lon - 15 * tzOff) + eot; // minutes
-      const solarNoon = 12 - tc / 60;
-      return { sunrise: solarNoon - H / 15, sunset: solarNoon + H / 15 };
-    }
-
     function applyAutoTheme() {
-      const nowH = new Date().getHours() + new Date().getMinutes() / 60;
-      let isDaytime;
-      if (geoCoords) {
-        const { sunrise, sunset } = computeSunriseSunset(geoCoords.lat, geoCoords.lon);
-        isDaytime = (nowH >= sunrise && nowH < sunset);
-      } else {
-        isDaytime = (nowH >= 7 && nowH < 19);
+      // Get current hour in the selected timezone (no geolocation needed)
+      try {
+        const nowInTZ = new Date().toLocaleString('en-US', { timeZone: selectedTZ, hour12: false, hour: '2-digit', minute: '2-digit' });
+        const [h, m] = nowInTZ.split(':').map(Number);
+        const nowH = h + m / 60;
+        const isDaytime = (nowH >= 7 && nowH < 19);
+        setTheme(isDaytime ? 'light' : 'dark');
+      } catch {
+        // Fallback: use device local time
+        const nowH = new Date().getHours() + new Date().getMinutes() / 60;
+        setTheme((nowH >= 7 && nowH < 19) ? 'light' : 'dark');
       }
-      setTheme(isDaytime ? 'light' : 'dark');
     }
 
     function setTheme(theme) {
@@ -1751,23 +1729,13 @@
       if (themeAuto) {
         localStorage.setItem('uscis-theme-auto', '1');
         localStorage.removeItem('uscis-theme');
-        tryGeoForTheme();
+        applyAutoTheme();
       } else {
         localStorage.setItem('uscis-theme-auto', '0');
       }
     }
 
-    function tryGeoForTheme() {
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          pos => { geoCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude }; applyAutoTheme(); },
-          () => { applyAutoTheme(); },
-          { timeout: 5000, maximumAge: 3600000 }
-        );
-      } else {
-        applyAutoTheme();
-      }
-    }
+
 
     function initTheme() {
       const savedAuto = localStorage.getItem('uscis-theme-auto');
@@ -1780,7 +1748,7 @@
       } else {
         themeAuto = true;
         document.getElementById('autoBadge').classList.add('active');
-        tryGeoForTheme();
+        applyAutoTheme();
       }
       updateThumbIcon();
     }
