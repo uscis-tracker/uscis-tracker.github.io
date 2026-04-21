@@ -1323,7 +1323,8 @@
       <!-- Live info + theme toggle -->
       <div class="hdr-right">
         <div class="hdr-info">
-          <div>Schema: <a href="https://niem.github.io/model/5.0/scr/BenefitDocumentStatusCategoryCodeSimpleType/" target="_blank" rel="noopener noreferrer" class="niem-link" id="liveNIEM">NIEM v5.0</a></div>
+          <div>Schema: <a href="https://niem.github.io/model/5.0/scr/BenefitDocumentStatusCategoryCodeSimpleType/"
+              target="_blank" rel="noopener noreferrer" class="niem-link" id="liveNIEM">NIEM v5.0</a></div>
           <div>Timezone: <span id="liveTZName">—</span></div>
           <div>Now: <span id="liveTimeDisplay">—</span></div>
         </div>
@@ -1375,27 +1376,35 @@
       <div class="api-guide">
         <div class="api-guide-title">📖 How to Access Your USCIS Case JSON Data</div>
         <div class="api-guide-body">
-          <p style="margin-bottom:8px">To retrieve your case data in JSON format from the USCIS ELIS API, follow these steps:</p>
+          <p style="margin-bottom:8px">To retrieve your case data in JSON format from the USCIS ELIS API, follow these
+            steps:</p>
           <div class="api-step">
             <span class="step-num">1</span>
-            <span>Sign in to your USCIS account at <a href="https://myaccount.uscis.gov/sign-in" target="_blank" rel="noopener noreferrer">https://myaccount.uscis.gov/sign-in</a></span>
+            <span>Sign in to your USCIS account at <a href="https://myaccount.uscis.gov/sign-in" target="_blank"
+                rel="noopener noreferrer">https://myaccount.uscis.gov/sign-in</a></span>
           </div>
           <div class="api-step">
             <span class="step-num">2</span>
-            <span>After signing in, open a <strong>new browser tab</strong> and navigate to the following URL (replace the receipt number with your own):</span>
+            <span>After signing in, open a <strong>new browser tab</strong> and navigate to the following URL (replace
+              the receipt number with your own):</span>
           </div>
           <p style="margin:6px 0 6px 28px">
             <code>https://my.uscis.gov/account/case-service/api/cases/<strong>IOE09XXXXXXXX</strong></code>
           </p>
           <div class="api-step">
             <span class="step-num">3</span>
-            <span>Replace <code>IOE09XXXXXXXX</code> with your unique application <strong>receipt number</strong>.</span>
+            <span>Replace <code>IOE09XXXXXXXX</code> with your unique application <strong>receipt
+                number</strong>.</span>
           </div>
           <div class="api-step">
             <span class="step-num">4</span>
-            <span>The browser will display the raw JSON response. <strong>Select all</strong> (Ctrl+A), <strong>copy</strong> (Ctrl+C), and <strong>paste</strong> (Ctrl+V) it into the text area above, then click <strong>Analyze Case</strong>.</span>
+            <span>The browser will display the raw JSON response. <strong>Select all</strong> (Ctrl+A),
+              <strong>copy</strong> (Ctrl+C), and <strong>paste</strong> (Ctrl+V) it into the text area above, then
+              click <strong>Analyze Case</strong>.</span>
           </div>
-          <p style="margin-top:8px;font-size:11px;color:var(--text-dim)">Note: You must be signed in to your USCIS account in the same browser session for the API link to work. The JSON data is fetched directly from USCIS servers to your browser — this tool does not store or transmit any data.</p>
+          <p style="margin-top:8px;font-size:11px;color:var(--text-dim)">Note: You must be signed in to your USCIS
+            account in the same browser session for the API link to work. The JSON data is fetched directly from USCIS
+            servers to your browser — this tool does not store or transmit any data.</p>
         </div>
       </div>
     </div>
@@ -1476,7 +1485,8 @@
           not constitute legal advice. The developers, contributors, and associated parties expressly disclaim all
           liability for any errors, omissions, misinterpretations, or outcomes arising from the use of this tool.
           <strong>Always consult a licensed immigration attorney or accredited representative for advice specific to
-            your situation.</strong></p>
+            your situation.</strong>
+        </p>
       </div>
     </div>
 
@@ -1487,11 +1497,15 @@
     <div class="footer-inner">
       <div class="footer-credit">
         Proudly developed with <span class="brand">Claude AI</span> (claude.ai) &nbsp;·&nbsp;
-        In close supervision with <a href="https://sohagkumarsaha.github.io" target="_blank" rel="noopener noreferrer" class="niem-link"><strong>Sohag Kumar Saha</strong></a>
+        In close supervision with <a href="https://sohagkumarsaha.github.io" target="_blank" rel="noopener noreferrer"
+          class="niem-link"><strong>Sohag Kumar Saha</strong></a>
       </div>
       <div class="footer-right">
-        <span>© 2026 <a href="https://sohagkumarsaha.github.io" target="_blank" rel="noopener noreferrer" class="niem-link">Sohag Kumar Saha</a> · All Rights Reserved</span><br>
-        <span>Event codes: <a href="https://niem.github.io/model/5.0/scr/BenefitDocumentStatusCategoryCodeSimpleType/" target="_blank" rel="noopener noreferrer" class="niem-link">NIEM v5.0</a> scr:BenefitDocumentStatusCategoryCodeSimpleType</span>
+        <span>© 2026 <a href="https://sohagkumarsaha.github.io" target="_blank" rel="noopener noreferrer"
+            class="niem-link">Sohag Kumar Saha</a> · All Rights Reserved</span><br>
+        <span>Event codes: <a href="https://niem.github.io/model/5.0/scr/BenefitDocumentStatusCategoryCodeSimpleType/"
+            target="_blank" rel="noopener noreferrer" class="niem-link">NIEM v5.0</a>
+          scr:BenefitDocumentStatusCategoryCodeSimpleType</span>
       </div>
     </div>
   </div>
@@ -1514,7 +1528,7 @@
       AALB: { name: 'Received at Lockbox Facility', desc: 'Application package received and logged at the USCIS lockbox facility.', cat: 'receipt' },
       // Background checks
       FTA0: { name: 'Database Checks Received', desc: 'USCIS has received results from background database checks (FBI, biometrics, name checks, etc.). This is a routine and expected step in the adjudication pipeline.', cat: 'checks' },
-      FTA1: { name: 'Database Checks Received (Post-Interview)', desc: 'Follow-up background database check results received — typically occurs after the interview as part of supervisory final adjudication review.', cat: 'checks' },
+      FTA1: { name: 'Database Checks Received', desc: 'Follow-up background database check results received — typically occurs as a part of supervisory final adjudication review.', cat: 'checks' },
       FSA0: { name: 'Database Checks Requested', desc: 'USCIS has initiated a request for background database checks from relevant federal agencies.', cat: 'checks' },
       FN: { name: 'Fingerprint / Agency Checks Ordered', desc: 'Fingerprinting and background agency checks have been ordered as part of standard adjudication.', cat: 'checks' },
       FNA: { name: 'Fingerprint Appointment Notice Ordered', desc: 'A biometrics (fingerprint) appointment notice has been ordered and will be mailed to the applicant.', cat: 'checks' },
@@ -1557,6 +1571,7 @@
       IEA: { name: 'Approval Notice Sent', desc: 'An official approval notice has been mailed to the applicant.', cat: 'approved' },
       IEE: { name: 'Approval Letter Emailed', desc: 'An approval letter has been emailed to the applicant. The case has been successfully approved.', cat: 'approved' },
       IEC: { name: 'Welcome Notice Sent', desc: 'A welcome notice has been sent — this typically confirms that Lawful Permanent Resident (LPR / Green Card) status has been officially granted.', cat: 'approved' },
+      H008: { name: 'Case Approved', desc: 'The USCIS event code H008 signifies that a case, particularly Form I-485 (Application to Register Permanent Residence or Adjust Status), has been approved. The case has been adjudicated and the green card is being processed.', cat: 'approved' },
       // Green card production
       LAA: { name: 'Card Request Sent to Production', desc: 'A Green Card production request has been transmitted to the ICPS card print server.', cat: 'card' },
       LDA: { name: 'Green Card Produced', desc: 'The Permanent Resident Card (Green Card) has been successfully produced.', cat: 'card' },
@@ -1843,7 +1858,7 @@
       <div class="detail-row"><span class="detail-key">Form Type</span><span class="detail-val">${d.formType || '—'}</span></div>
       <div class="detail-row"><span class="detail-key">Form Name</span><span class="detail-val" style="font-size:12px">${d.formName || '—'}</span></div>
       <div class="detail-row"><span class="detail-key">Applicant Name</span><span class="detail-val">${d.applicantName || '—'}</span></div>
-      <div class="detail-row"><span class="detail-key">Filed</span><span class="detail-val mono" style="font-size:12px">${f(subTs)}</span></div>
+      <div class="detail-row"><span class="detail-key">Filed</span><span class="detail-val mono" style="font-size:12px">${fmtFullInTZ(subTs, 'UTC')}</span></div>
       <div class="detail-row"><span class="detail-key">Last Updated</span><span class="detail-val mono" style="font-size:12px">${f(updTs)}</span></div>
       <div class="detail-row"><span class="detail-key">Filing Channel</span><span class="detail-val">${d.elisChannelType || '—'}</span></div>
     </div>
