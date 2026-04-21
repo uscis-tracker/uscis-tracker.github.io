@@ -2011,30 +2011,58 @@
     // ─────────────────────────────────────────────────────────────
     function renderSummary(d, events, notices, codes, daysSub, tz) {
       const f = ts => fmtFullInTZ(ts, tz);
+      const applicant = d.applicantName || 'the applicant';
+      const form = d.formType || 'I-485';
 
-      const isApproved = codes.some(c => ['DA', 'DH', 'IEA', 'IEE', 'IEC'].includes(c));
+      // ── Detection flags ─────────────────────────────────────
+      const isApproved = codes.some(c => ['DA', 'DH', 'IEA', 'IEE', 'IEC', 'H008'].includes(c));
       const isDenied = codes.some(c => ['EA', 'IFA'].includes(c));
       const hasInterview = codes.some(c => ['FJ', 'HG'].includes(c));
       const hasPostIvChk = codes.includes('FTA1');
       const hasBgChecks = codes.some(c => ['FTA0', 'FTA1'].includes(c));
       const hasRFE = codes.some(c => ['FBA', 'FBB', 'IK'].includes(c));
+      const hasCardProduced = codes.includes('LDA');
+      const hasCardMailed = codes.includes('LEA');
+      const hasCardRequested = codes.includes('LAA');
+      const hasDecision = isApproved || isDenied || codes.includes('H008') || hasCardProduced;
       const isAdjAcked = d.ackedByAdjudicatorAndCms;
+      const isClosed = d.closed === true;
 
+      // Interview waived: decision reached but no interview events
+      const interviewWaived = hasDecision && !hasInterview;
+
+      // ── Stage index (linear progress) ───────────────────────
       let stageIdx = 0;
       if (codes.some(c => ['IAF', 'IAA', 'AALB'].includes(c))) stageIdx = 1;
       if (hasBgChecks) stageIdx = 2;
       if (hasInterview) stageIdx = 3;
-      if (hasPostIvChk) stageIdx = 4;
-      if (isApproved || isDenied) stageIdx = 5;
+      if (hasInterview && hasPostIvChk) stageIdx = 4;
+      // For waived-interview cases, jump from bg checks to decision
+      if (interviewWaived) stageIdx = 5;
+      if (hasDecision) stageIdx = 5;
 
-      const stages = [
-        { name: 'Filed', done: stageIdx >= 1 },
-        { name: 'Receipt', done: stageIdx >= 1 },
-        { name: 'Bg Checks', done: stageIdx >= 2 },
-        { name: 'Interview', done: stageIdx >= 3 },
-        { name: 'Post-Interview', done: stageIdx >= 4, active: stageIdx === 4 },
-        { name: 'Decision', done: stageIdx >= 5, active: stageIdx === 4 },
-      ];
+      // ── Dynamic progress stages ─────────────────────────────
+      let stages;
+      if (interviewWaived) {
+        // No interview path: Filed → Receipt → Bg Checks → Interview Waived → Decision
+        stages = [
+          { name: 'Filed', done: stageIdx >= 1 },
+          { name: 'Receipt', done: stageIdx >= 1 },
+          { name: 'Bg Checks', done: stageIdx >= 2 },
+          { name: 'Interview Waived', done: true },
+          { name: 'Decision', done: stageIdx >= 5 },
+        ];
+      } else {
+        // Standard interview path: Filed → Receipt → Bg Checks → Interview → Post-Interview → Decision
+        stages = [
+          { name: 'Filed', done: stageIdx >= 1 },
+          { name: 'Receipt', done: stageIdx >= 1 },
+          { name: 'Bg Checks', done: stageIdx >= 2 },
+          { name: 'Interview', done: stageIdx >= 3 },
+          { name: 'Post-Interview', done: stageIdx >= 4, active: stageIdx === 4 },
+          { name: 'Decision', done: stageIdx >= 5, active: stageIdx === 4 },
+        ];
+      }
 
       const stepsHTML = stages.map((s, i) => {
         let cls = 'pending', icon = (i + 1).toString();
@@ -2052,48 +2080,110 @@
       ${i < stages.length - 1 ? `<div class="progress-connector ${connCls}"></div>` : ''}`;
       }).join('');
 
-      // Interview appointment date
+      // ── Key event timestamps ────────────────────────────────
       const ivNotice = notices.find(n => n.actionType === 'Interview Scheduled');
       const ivDateStr = ivNotice ? f(ivNotice.appointmentDateTime) : null;
+
+      const h008ev = events.find(e => e.eventCode === 'H008');
+      const h008ts = h008ev ? f(h008ev.createdAtTimestamp || h008ev.eventTimestamp) : null;
+
+      const ldaEv = events.find(e => e.eventCode === 'LDA');
+      const ldaTs = ldaEv ? f(ldaEv.createdAtTimestamp || ldaEv.eventTimestamp) : null;
+
+      const leaEv = events.find(e => e.eventCode === 'LEA');
+      const leaTs = leaEv ? f(leaEv.createdAtTimestamp || leaEv.eventTimestamp) : null;
+
+      const fta1ev = events.find(e => e.eventCode === 'FTA1');
+      const fta1ts = fta1ev ? f(fta1ev.createdAtTimestamp || fta1ev.eventTimestamp) : null;
 
       // Most recent standard event
       const sortedEvs = [...events].sort((a, b) => new Date(b.createdAtTimestamp || b.eventTimestamp) - new Date(a.createdAtTimestamp || a.eventTimestamp));
       const latest = sortedEvs[0];
       const latestInfo = latest ? getInfo(latest.eventCode) : null;
 
-      // Build narrative
+      // ── Build narrative dynamically ─────────────────────────
       let narrative = '';
-      if (isApproved) {
-        narrative = `
-      <p><strong>🎉 Your application has been APPROVED.</strong> USCIS has approved the ${d.formType || 'I-485'} for <strong>${d.applicantName || 'the applicant'}</strong>. Congratulations on this milestone!</p>
-      <p>An approval notice should arrive by mail shortly. If not received within 7–10 business days, log in to your USCIS online account to verify your mailing address.</p>`;
+
+      if (isApproved && isClosed) {
+        // ── Fully approved & closed case ──────────────────────
+        narrative = `<p><strong>🎉 Congratulations!</strong> The <strong>${form}</strong> application for <strong>${applicant}</strong> has been <span class="hl-g">APPROVED</span> by USCIS.`;
+        if (interviewWaived) {
+          narrative += ` Notably, USCIS waived the in-person interview and issued a direct approval decision based on the submitted evidence and background check results.`;
+        }
+        narrative += `</p>`;
+        if (h008ts) narrative += `<p>The approval decision (event code <span class="mono" style="font-size:12px;color:var(--gold)">H008</span>) was recorded on <span class="hl">${h008ts}</span>.</p>`;
+        if (hasCardProduced) {
+          narrative += `<p>The Permanent Resident Card (Green Card) has been <span class="hl-g">produced</span>`;
+          if (ldaTs) narrative += ` on <span class="hl">${ldaTs}</span>`;
+          narrative += `.`;
+          if (hasCardMailed) {
+            narrative += ` The card has been <span class="hl-g">mailed</span>`;
+            if (leaTs) narrative += ` on <span class="hl">${leaTs}</span>`;
+            narrative += `. Expected delivery within 7–10 business days.`;
+          } else if (hasCardRequested) {
+            narrative += ` The card production request has been sent and the card should be mailed shortly.`;
+          }
+          narrative += `</p>`;
+        } else {
+          narrative += `<p>An approval notice should arrive by mail shortly. If not received within 7–10 business days, log in to your USCIS online account to verify your mailing address.</p>`;
+        }
+
+      } else if (isApproved && !isClosed) {
+        // ── Approved but case still open (card pending, etc.) ─
+        narrative = `<p><strong>🎉 Great news!</strong> The <strong>${form}</strong> for <strong>${applicant}</strong> has been <span class="hl-g">APPROVED</span>.`;
+        if (interviewWaived) {
+          narrative += ` The interview was waived and USCIS issued a direct approval based on the evidence on record.`;
+        }
+        narrative += ` The case record remains open, which typically means the Green Card is still being processed or mailed.</p>`;
+        if (h008ts) narrative += `<p>Approval decision (event code <span class="mono" style="font-size:12px;color:var(--gold)">H008</span>) recorded on <span class="hl">${h008ts}</span>.</p>`;
+        if (hasCardProduced && ldaTs) {
+          narrative += `<p>Green Card produced on <span class="hl">${ldaTs}</span>.`;
+          if (hasCardMailed && leaTs) narrative += ` Card mailed on <span class="hl">${leaTs}</span> — expected delivery within 7–10 business days.`;
+          narrative += `</p>`;
+        }
+        if (isAdjAcked) narrative += `<p>The case shows <strong>formal acknowledgment by the adjudicating officer and CMS</strong>, confirming the decision has been finalized at the supervisory level.</p>`;
+
       } else if (isDenied) {
+        // ── Denied ────────────────────────────────────────────
         narrative = `
-      <p><span class="hl-r">⚠ A denial notice has been issued for this case.</span> If you believe the denial is in error, you may be eligible to file a Motion to Reopen or Reconsider (Form I-290B), or appeal the decision to the Administrative Appeals Office (AAO).</p>
+      <p><span class="hl-r">⚠ A denial notice has been issued</span> for the <strong>${form}</strong> of <strong>${applicant}</strong>. If you believe the denial is in error, you may be eligible to file a Motion to Reopen or Reconsider (Form I-290B), or appeal the decision to the Administrative Appeals Office (AAO).</p>
       <p>Strict deadlines apply to post-denial actions. Please consult a licensed immigration attorney promptly to evaluate your options.</p>`;
-      } else if (hasPostIvChk) {
-        const fta1ev = events.find(e => e.eventCode === 'FTA1');
-        const fta1ts = fta1ev ? f(fta1ev.eventTimestamp || fta1ev.createdAtTimestamp) : 'recently';
-        narrative = `
-      <p><strong>Your case is in the final adjudication stage following a successful interview.</strong>
-      ${ivDateStr ? `The interview was conducted on or around <span class="hl">${ivDateStr}</span>.` : ''}
-      Post-interview background database checks were received on <span class="hl">${fta1ts}</span> (event code <span class="mono" style="font-size:12px;color:var(--gold)">FTA1</span>).</p>
-      ${isAdjAcked ? `<p>Notably, the case record shows <strong>formal acknowledgment by both the adjudicating officer and the Case Management System (CMS)</strong> — a strong positive signal indicating that a supervisor is actively conducting a final review of the case.</p>` : ''}
-      <p>The case is currently open with <span class="hl-g">no action required from you at this time.</span> A final decision is expected shortly.</p>`;
+
+      } else if (hasPostIvChk && hasInterview) {
+        // ── Post-interview checks received (with interview) ──
+        narrative = `<p><strong>Your case is in the final adjudication stage following a successful interview.</strong>`;
+        if (ivDateStr) narrative += ` The interview was conducted on or around <span class="hl">${ivDateStr}</span>.`;
+        if (fta1ts) narrative += ` Follow-up background database checks were received on <span class="hl">${fta1ts}</span> (event code <span class="mono" style="font-size:12px;color:var(--gold)">FTA1</span>).`;
+        narrative += `</p>`;
+        if (isAdjAcked) narrative += `<p>The case record shows <strong>formal acknowledgment by both the adjudicating officer and CMS</strong> — a strong positive signal indicating a supervisor is actively conducting a final review.</p>`;
+        narrative += `<p>The case is currently open with <span class="hl-g">no action required from you at this time.</span> A final decision is expected shortly.</p>`;
+
+      } else if (hasPostIvChk && !hasInterview) {
+        // ── Post-adjudication checks without interview ────────
+        narrative = `<p><strong>Your case for <strong>${applicant}</strong> is in the final adjudication stage.</strong> USCIS has completed background database checks`;
+        if (fta1ts) narrative += ` as of <span class="hl">${fta1ts}</span>`;
+        narrative += `. No in-person interview was conducted — the interview appears to have been waived.</p>`;
+        if (isAdjAcked) narrative += `<p>The case shows <strong>formal acknowledgment by the adjudicating officer and CMS</strong>, indicating the case is under active supervisory review for a final decision.</p>`;
+        narrative += `<p>The case is currently open with <span class="hl-g">no action required from you at this time.</span> A decision is expected shortly.</p>`;
+
       } else if (hasInterview) {
-        narrative = `
-      <p><strong>Your interview has been scheduled/conducted.</strong>
-      ${ivDateStr ? `Interview appointment: <span class="hl">${ivDateStr}</span>.` : ''}
-      The case is now in post-interview adjudication and the officer is reviewing all submitted evidence and background check results.</p>
-      <p>This stage can take several weeks to a few months depending on the field office. No additional action is required unless USCIS contacts you directly.</p>`;
+        // ── Interview happened, awaiting post-interview ───────
+        narrative = `<p><strong>The interview for <strong>${applicant}</strong> has been scheduled/conducted.</strong>`;
+        if (ivDateStr) narrative += ` Interview appointment: <span class="hl">${ivDateStr}</span>.`;
+        narrative += ` The case is now in post-interview adjudication and the officer is reviewing all submitted evidence and background check results.</p>`;
+        narrative += `<p>This stage can take several weeks to a few months depending on the field office. No additional action is required unless USCIS contacts you directly.</p>`;
+
       } else if (hasRFE) {
-        narrative = `
-      <p><span class="hl">⚠ A Request for Evidence (RFE) has been issued.</span> USCIS requires additional documentation before a decision can be issued. Check your mail and USCIS online account for the RFE notice and respond by the stated deadline — failure to respond may result in a denial.</p>`;
+        // ── RFE issued ────────────────────────────────────────
+        narrative = `<p><span class="hl">⚠ A Request for Evidence (RFE) has been issued</span> for the case of <strong>${applicant}</strong>. USCIS requires additional documentation before a decision can be issued. Check your mail and USCIS online account for the RFE notice and respond by the stated deadline — failure to respond may result in a denial.</p>`;
+
       } else if (hasBgChecks) {
-        narrative = `
-      <p><strong>Background checks have been received.</strong> Your case is progressing through the standard adjudication pipeline. No interview has been scheduled yet. This is a routine stage; processing times vary by field office workload.</p>`;
+        // ── Background checks received, no interview yet ──────
+        narrative = `<p><strong>Background checks have been received</strong> for the <strong>${form}</strong> of <strong>${applicant}</strong>. The case is progressing through the standard adjudication pipeline. No interview has been scheduled yet. This is a routine stage; processing times vary by field office workload.</p>`;
+
       } else {
-        narrative = `<p><strong>Your case is in early processing stages.</strong> USCIS has received the application and is working through initial intake and verification steps.</p>`;
+        // ── Early stages ──────────────────────────────────────
+        narrative = `<p><strong>The case for <strong>${applicant}</strong> is in early processing stages.</strong> USCIS has received the <strong>${form}</strong> application and is working through initial intake and verification steps.</p>`;
       }
 
       const updTs = d.updatedAtTimestamp || d.updatedAt;
@@ -2104,7 +2194,7 @@
       <div class="sum-icon">⚖️</div>
       <div>
         <div class="sum-title">Case Overview — ${d.receiptNumber || 'Unknown'}</div>
-        <div class="sum-sub">${d.formName || d.formType || 'I-485'} &nbsp;·&nbsp; Applicant: <strong>${d.applicantName || 'Unknown'}</strong></div>
+        <div class="sum-sub">${d.formName || form} &nbsp;·&nbsp; Applicant: <strong>${applicant}</strong></div>
       </div>
     </div>
     <div class="sum-stats">
