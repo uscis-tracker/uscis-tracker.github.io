@@ -214,8 +214,10 @@
           <input type="text" id="qfReceiptInput" class="qf-input" placeholder="IOE0912345678" maxlength="14"
             oninput="onQFInput()" onkeydown="if(event.key==='Enter') openUSCISAPI()" autocomplete="off"
             spellcheck="false" />
-          <button class="qf-btn qf-btn-open" id="qfOpenBtn" onclick="openUSCISAPI()" disabled>🔗 Open USCIS API
-            →</button>
+          <button class="qf-btn qf-btn-open" id="qfOpenBtn" onclick="openUSCISAPI()" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> 
+            Open USCIS API
+          </button>
         </div>
         <div class="qf-url-display" id="qfUrlDisplay"></div>
         <div class="qf-hint">
