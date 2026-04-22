@@ -114,7 +114,7 @@ uscis-tracker.github.io/
 
 ```
 
-The entire application is contained in a single `index.html` file — no build tools, no dependencies, no frameworks. Just open it in any modern browser.
+The entire application is based on HTML, CSS, and JS and runs on the `index.html` file — no build tools, no dependencies, no frameworks. Just open it in any modern browser.
 
 ---
 
