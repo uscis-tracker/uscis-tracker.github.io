@@ -608,6 +608,7 @@
     .qf-btn-open {
       background: var(--green);
       color: #0d1117;
+      font-weight: 700;
     }
 
     .qf-btn-open:hover {
