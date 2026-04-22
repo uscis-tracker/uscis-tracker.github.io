@@ -1,4 +1,4 @@
-# ⚖️ USCIS Case Status Tracker
+# 🗽 USCIS Case Status Tracker
 
 A privacy-first, single-page web application that parses and visualizes USCIS ELIS API JSON data — transforming raw case records into a rich, human-readable timeline with intelligent event interpretation, progress tracking, and comprehensive case analysis.
 
