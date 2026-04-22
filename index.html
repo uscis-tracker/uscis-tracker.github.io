@@ -1684,12 +1684,17 @@
       <div class="section-divider-line"></div>
     </div>
     <div class="card visitor-map-card">
-      <div class="visitor-map-embed">
-        <script type='text/javascript' id='mapmyvisitors'
-          src='https://mapmyvisitors.com/map.js?cl=ffffff&w=a&t=tt&d=qkPat3f11qsU2Kt5XJGo_3GHA3vLMGZqsSztXCBO0H4&co=2d78ad&cmo=3acc3a&cmn=ff5353&ct=ffffff'></script>
-        <noscript>
-          <div style="color:var(--text-muted);font-size:12px">Enable JavaScript to view the visitor map.</div>
-        </noscript>
+      <div style="position:relative;cursor:pointer;" title="Click to view full visitor stats on MapMyVisitors"
+           onclick="window.open('https://mapmyvisitors.com/web/1bvfu','_blank','noopener,noreferrer')">
+        <div class="visitor-map-embed">
+          <script type='text/javascript' id='mapmyvisitors'
+            src='https://mapmyvisitors.com/map.js?cl=ffffff&w=a&t=tt&d=qkPat3f11qsU2Kt5XJGo_3GHA3vLMGZqsSztXCBO0H4&co=2d78ad&cmo=3acc3a&cmn=ff5353&ct=ffffff'></script>
+          <noscript>
+            <div style="color:var(--text-muted);font-size:12px">Enable JavaScript to view the visitor map.</div>
+          </noscript>
+        </div>
+        <!-- Transparent overlay to intercept clicks from the third-party map script -->
+        <div style="position:absolute;inset:0;z-index:10;cursor:pointer;"></div>
       </div>
     </div>
 
