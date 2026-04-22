@@ -1,0 +1,13 @@
+{
+  "name": "USCIS Case Status Tracker",
+  "short_name": "USCIS Tracker",
+  "description": "Free I-485 case status analyzer with full NIEM v5.0 event timeline.",
+  "icons": [
+    { "src": "/favicon-32x32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#d4a843"
+}
