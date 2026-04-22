@@ -647,7 +647,9 @@
       line-height: 1.6;
     }
 
-    .qf-hint strong { color: var(--text-muted); }
+    .qf-hint strong {
+      color: var(--text-muted);
+    }
 
     .qf-url-display {
       display: none;
@@ -662,7 +664,9 @@
       word-break: break-all;
     }
 
-    .qf-url-display.visible { display: block; }
+    .qf-url-display.visible {
+      display: block;
+    }
 
     /* ── Section dividers ────────────────────────────────── */
     .section-divider {
@@ -1517,33 +1521,31 @@
       <div class="qf-panel">
         <div class="qf-title">⚡ Quick Fetch — Enter Receipt Number</div>
         <div class="qf-row">
-          <input
-            type="text"
-            id="qfReceiptInput"
-            class="qf-input"
-            placeholder="IOE0912345678"
-            maxlength="14"
-            oninput="onQFInput()"
-            onkeydown="if(event.key==='Enter') openUSCISAPI()"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button class="qf-btn qf-btn-open" id="qfOpenBtn" onclick="openUSCISAPI()" disabled>🔗 Open USCIS API →</button>
+          <input type="text" id="qfReceiptInput" class="qf-input" placeholder="IOE0912345678" maxlength="14"
+            oninput="onQFInput()" onkeydown="if(event.key==='Enter') openUSCISAPI()" autocomplete="off"
+            spellcheck="false" />
+          <button class="qf-btn qf-btn-open" id="qfOpenBtn" onclick="openUSCISAPI()" disabled>🔗 Open USCIS API
+            →</button>
         </div>
         <div class="qf-url-display" id="qfUrlDisplay"></div>
         <div class="qf-hint">
           <strong style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:8px">How it works:</strong>
           <div class="api-step">
             <span class="step-num">1</span>
-            <span>Enter your <strong>receipt number</strong> above (starts with <code style="background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold)">IOE</code> followed by digits).</span>
+            <span>Enter your <strong>receipt number</strong> above (starts with <code
+                style="background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold)">IOE</code>
+              followed by digits).</span>
           </div>
           <div class="api-step">
             <span class="step-num">2</span>
-            <span>Make sure you are <strong>already signed in</strong> to <a href="https://myaccount.uscis.gov/sign-in" target="_blank" rel="noopener noreferrer" style="color:var(--blue)">myaccount.uscis.gov</a> in <strong>another tab</strong> in this same browser session.</span>
+            <span>Make sure you are <strong>already signed in</strong> to <a href="https://myaccount.uscis.gov/sign-in"
+                target="_blank" rel="noopener noreferrer" style="color:var(--blue)">myaccount.uscis.gov</a> in
+              <strong>another tab</strong> in this same browser session.</span>
           </div>
           <div class="api-step">
             <span class="step-num">3</span>
-            <span>Click <strong>Open USCIS API →</strong> — the raw JSON data will load in a new tab automatically.</span>
+            <span>Click <strong>Open USCIS API →</strong> — the raw JSON data will load in a new tab
+              automatically.</span>
           </div>
           <div class="api-step">
             <span class="step-num">4</span>
@@ -1551,17 +1553,19 @@
           </div>
           <div class="api-step">
             <span class="step-num">5</span>
-            <span>Paste (<strong>Ctrl+V</strong>) into the text area above and click <strong>Analyze Case</strong>.</span>
+            <span>Paste (<strong>Ctrl+V</strong>) into the text area above and click <strong>Analyze
+                Case</strong>.</span>
           </div>
           <p style="margin-top:9px;font-size:11px;color:var(--text-dim);line-height:1.6">
-            Note: Due to browser security — Cross-Origin Resource Sharing (CORS) — direct auto-loading from an external domain is not possible. This step-by-step method is the fastest available path.
+            Note: Due to browser security — Cross-Origin Resource Sharing (CORS) — direct auto-loading from an external
+            domain is not possible. This step-by-step method is the fastest available path.
           </p>
         </div>
       </div>
 
       <!-- API Access Guide -->
       <div class="api-guide">
-        <div class="api-guide-title">📖 How to Access Your USCIS Case JSON Data</div>
+        <div class="api-guide-title">📖 How to Manually Access Your USCIS Case JSON Data</div>
         <div class="api-guide-body">
           <p style="margin-bottom:8px">To retrieve your case data in JSON format from the USCIS ELIS API, follow these
             steps:</p>
@@ -1685,7 +1689,7 @@
     </div>
     <div class="card visitor-map-card">
       <div style="position:relative;cursor:pointer;" title="Click to view full visitor stats on MapMyVisitors"
-           onclick="window.open('https://mapmyvisitors.com/web/1bvfu','_blank','noopener,noreferrer')">
+        onclick="window.open('https://mapmyvisitors.com/web/1bvfu','_blank','noopener,noreferrer')">
         <div class="visitor-map-embed">
           <script type='text/javascript' id='mapmyvisitors'
             src='https://mapmyvisitors.com/map.js?cl=ffffff&w=a&t=tt&d=qkPat3f11qsU2Kt5XJGo_3GHA3vLMGZqsSztXCBO0H4&co=2d78ad&cmo=3acc3a&cmn=ff5353&ct=ffffff'></script>
