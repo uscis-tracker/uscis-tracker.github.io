@@ -9,12 +9,12 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RFNQ86PYEK"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
-  
+
     gtag('config', 'G-RFNQ86PYEK');
   </script>
-  
+
   <title>USCIS Case Status Tracker</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
@@ -551,6 +551,116 @@
       color: var(--gold);
       word-break: break-all;
     }
+
+    /* ── Quick Fetch panel ───────────────────────────────── */
+    .qf-panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--green);
+      border-radius: 9px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
+    }
+
+    .qf-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .qf-row {
+      display: flex;
+      gap: 9px;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+
+    .qf-input {
+      flex: 1;
+      min-width: 180px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: 9px 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      letter-spacing: .5px;
+    }
+
+    .qf-input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.1);
+    }
+
+    .qf-input::placeholder {
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .qf-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: all .18s ease;
+      white-space: nowrap;
+    }
+
+    .qf-btn-open {
+      background: var(--green);
+      color: #0d1117;
+    }
+
+    .qf-btn-open:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .qf-btn-open:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .qf-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 9px;
+      line-height: 1.6;
+    }
+
+    .qf-hint strong { color: var(--text-muted); }
+
+    .qf-url-display {
+      display: none;
+      margin-top: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 13px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      word-break: break-all;
+    }
+
+    .qf-url-display.visible { display: block; }
 
     /* ── Section dividers ────────────────────────────────── */
     .section-divider {
@@ -1401,6 +1511,37 @@
 }'></textarea>
       <div class="error-bar" id="errorBar"></div>
 
+      <!-- Quick Fetch Panel -->
+      <div class="qf-panel">
+        <div class="qf-title">⚡ Quick Fetch — Enter Receipt Number</div>
+        <div class="qf-row">
+          <input
+            type="text"
+            id="qfReceiptInput"
+            class="qf-input"
+            placeholder="IOE0912345678"
+            maxlength="14"
+            oninput="onQFInput()"
+            onkeydown="if(event.key==='Enter') openUSCISAPI()"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="qf-btn qf-btn-open" id="qfOpenBtn" onclick="openUSCISAPI()" disabled>🔗 Open USCIS API →</button>
+        </div>
+        <div class="qf-url-display" id="qfUrlDisplay"></div>
+        <div class="qf-hint">
+          <strong>How it works:</strong>
+          ① Enter your receipt number (starts with IOE) &nbsp;②&nbsp;
+          Make sure you are <strong>already signed in</strong> to
+          <a href="https://myaccount.uscis.gov/sign-in" target="_blank" rel="noopener noreferrer" style="color:var(--blue)">myaccount.uscis.gov</a>
+          in this browser &nbsp;③&nbsp;
+          Click <strong>Open USCIS API</strong> — the raw JSON will load in a new tab &nbsp;④&nbsp;
+          Press <strong>Ctrl+A</strong> then <strong>Ctrl+C</strong> to copy all &nbsp;⑤&nbsp;
+          Paste into the text area below and click <strong>Analyze Case</strong>.
+          <br>Note: Due to browser security (CORS), direct auto-loading is not possible — this is the fastest manual path.
+        </div>
+      </div>
+
       <!-- API Access Guide -->
       <div class="api-guide">
         <div class="api-guide-title">📖 How to Access Your USCIS Case JSON Data</div>
@@ -1878,13 +2019,31 @@
       const codes = events.map(e => e.eventCode);
 
       // ── Stat bar ────────────────────────────────────────────
-      const daysSub = daysBetween(subTs, today);
+      // Smart days calculation: use case close date when closed, else today
+      const isClosed = d.closed === true;
+      const isApproved = codes.some(c => ['DA', 'DH', 'IEA', 'IEE', 'IEC', 'H008'].includes(c));
+      const isDenied = codes.some(c => ['EA', 'IFA'].includes(c));
+      const caseEnded = isClosed || isApproved || isDenied;
+
+      let daysSub, daysLabel, daysTitle;
+      if (caseEnded && updTs) {
+        // Case is resolved — count days from filing to the last recorded update
+        daysSub = daysBetween(subTs, updTs);
+        daysLabel = 'Days (Filing → Close)';
+        daysTitle = `Calculated from submission date to last case update (${fmtDateInTZ(updTs, tz)}) — case is closed/decided.`;
+      } else {
+        // Case still open — count from filing to right now
+        daysSub = daysBetween(subTs, today);
+        daysLabel = 'Days Since Filing';
+        daysTitle = `Calculated from submission date to today (${fmtDateInTZ(today, tz)}) — case is still in progress.`;
+      }
+
       document.getElementById('statBar').innerHTML = [
-        { val: daysSub, lbl: 'Days Since Filing' },
-        { val: events.length, lbl: 'System Events' },
-        { val: notices.length, lbl: 'Official Notices' },
-        { val: d.formType || '—', lbl: 'Form Type' },
-      ].map(s => `<div class="stat-pill"><div class="stat-pill-val">${s.val}</div><div class="stat-pill-label">${s.lbl}</div></div>`).join('');
+        { val: daysSub, lbl: daysLabel, title: daysTitle },
+        { val: events.length, lbl: 'System Events', title: 'Total ELIS event codes recorded for this case' },
+        { val: notices.length, lbl: 'Official Notices', title: 'Official USCIS notices issued (interview, approval, etc.)' },
+        { val: d.formType || '—', lbl: 'Form Type', title: d.formName || '' },
+      ].map(s => `<div class="stat-pill" title="${s.title || ''}"><div class="stat-pill-val">${s.val}</div><div class="stat-pill-label">${s.lbl}</div></div>`).join('');
 
       // ── Case Details cards ──────────────────────────────────
       const f = ts => fmtFullInTZ(ts, tz);
@@ -2261,6 +2420,39 @@
           : `<p style="color:var(--green)">✓ No action is required from you at this time. Continue monitoring your USCIS online account for updates.</p>`
         }
     </div>`;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // QUICK FETCH — Receipt number → USCIS API URL opener
+    // ─────────────────────────────────────────────────────────────
+    const USCIS_API_BASE = 'https://my.uscis.gov/account/case-service/api/cases/';
+
+    function onQFInput() {
+      const raw = document.getElementById('qfReceiptInput').value.trim().toUpperCase();
+      const btn = document.getElementById('qfOpenBtn');
+      const urlDisplay = document.getElementById('qfUrlDisplay');
+
+      // Validate: must start with IOE and be at least 10 chars
+      const valid = /^IOE[0-9]{7,11}$/.test(raw);
+      btn.disabled = !valid;
+
+      if (raw.length > 2) {
+        const url = USCIS_API_BASE + raw;
+        urlDisplay.textContent = url;
+        urlDisplay.classList.toggle('visible', raw.length >= 5);
+      } else {
+        urlDisplay.classList.remove('visible');
+      }
+
+      // Sync the input to uppercase as the user types
+      document.getElementById('qfReceiptInput').value = raw;
+    }
+
+    function openUSCISAPI() {
+      const raw = document.getElementById('qfReceiptInput').value.trim().toUpperCase();
+      if (!raw) return;
+      const url = USCIS_API_BASE + raw;
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
 
     // ─────────────────────────────────────────────────────────────
