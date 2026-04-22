@@ -102,9 +102,16 @@ Once loaded, the tracker will display:
 ## 📂 Project Structure
 
 ```
-.
-├── index.html      # Single-file application (HTML + CSS + JavaScript)
-└── README.md       # This file
+uscis-tracker.github.io/
+├── css/
+│   └── style.css          <-- All design & layout
+├── js/
+│   └── main.js            <-- All logic & data parsing
+├── favicon/               <-- App icons & manifest
+├── index.html             <-- Core structure (very clean now!)
+├── robots.txt             <-- SEO crawler rules
+└── sitemap.xml            <-- SEO map
+
 ```
 
 The entire application is contained in a single `index.html` file — no build tools, no dependencies, no frameworks. Just open it in any modern browser.
