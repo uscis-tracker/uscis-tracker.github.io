@@ -518,14 +518,16 @@
       text-decoration: underline;
     }
 
-    .api-guide-body .api-step {
+    .api-guide-body .api-step,
+    .qf-panel .api-step {
       display: flex;
       align-items: flex-start;
       gap: 8px;
       margin: 6px 0;
     }
 
-    .api-guide-body .step-num {
+    .api-guide-body .step-num,
+    .qf-panel .step-num {
       background: var(--blue-dim);
       color: var(--blue);
       font-family: 'DM Mono', monospace;
@@ -1530,15 +1532,30 @@
         </div>
         <div class="qf-url-display" id="qfUrlDisplay"></div>
         <div class="qf-hint">
-          <strong>How it works:</strong>
-          ① Enter your receipt number (starts with IOE) &nbsp;②&nbsp;
-          Make sure you are <strong>already signed in</strong> to
-          <a href="https://myaccount.uscis.gov/sign-in" target="_blank" rel="noopener noreferrer" style="color:var(--blue)">myaccount.uscis.gov</a>
-          in this browser &nbsp;③&nbsp;
-          Click <strong>Open USCIS API</strong> — the raw JSON will load in a new tab &nbsp;④&nbsp;
-          Press <strong>Ctrl+A</strong> then <strong>Ctrl+C</strong> to copy all &nbsp;⑤&nbsp;
-          Paste into the text area below and click <strong>Analyze Case</strong>.
-          <br>Note: Due to browser security (CORS), direct auto-loading is not possible — this is the fastest manual path.
+          <strong style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:8px">How it works:</strong>
+          <div class="api-step">
+            <span class="step-num">1</span>
+            <span>Enter your <strong>receipt number</strong> above (starts with <code style="background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold)">IOE</code> followed by digits).</span>
+          </div>
+          <div class="api-step">
+            <span class="step-num">2</span>
+            <span>Make sure you are <strong>already signed in</strong> to <a href="https://myaccount.uscis.gov/sign-in" target="_blank" rel="noopener noreferrer" style="color:var(--blue)">myaccount.uscis.gov</a> in this same browser session.</span>
+          </div>
+          <div class="api-step">
+            <span class="step-num">3</span>
+            <span>Click <strong>Open USCIS API →</strong> — the raw JSON data will load in a new tab automatically.</span>
+          </div>
+          <div class="api-step">
+            <span class="step-num">4</span>
+            <span>Press <strong>Ctrl+A</strong> (select all) then <strong>Ctrl+C</strong> (copy) in the new tab.</span>
+          </div>
+          <div class="api-step">
+            <span class="step-num">5</span>
+            <span>Paste (<strong>Ctrl+V</strong>) into the text area above and click <strong>Analyze Case</strong>.</span>
+          </div>
+          <p style="margin-top:9px;font-size:11px;color:var(--text-dim);line-height:1.6">
+            Note: Due to browser security — Cross-Origin Resource Sharing (CORS) — direct auto-loading from an external domain is not possible. This step-by-step method is the fastest available path.
+          </p>
         </div>
       </div>
 
