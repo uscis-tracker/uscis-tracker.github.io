@@ -13,7 +13,7 @@
       AALB: { name: 'Received at Lockbox Facility', desc: 'Application package received and logged at the USCIS lockbox facility.', cat: 'receipt' },
       // Background checks
       FTA0: { name: 'Database Checks Received', desc: 'USCIS has received results from background database checks (FBI, biometrics, name checks, etc.). This is a routine and expected step in the adjudication pipeline.', cat: 'checks' },
-      FTA1: { name: 'Database Checks Received', desc: 'Follow-up background database check results received — typically occurs as a part of supervisory final adjudication review.', cat: 'checks' },
+      FTA1: { name: 'Database Checks Received', desc: 'Follow-up background database check results received — typically occurs as a part of supervisory final adjudication review. In addition, USCIS is actively reviewing your Form I-485, Application to Register Permanent Residence or Adjust Status. The record shows that nothing is outstanding at this time. USCIS will let you know if they need anything from you.', cat: 'checks' },
       FSA0: { name: 'Database Checks Requested', desc: 'USCIS has initiated a request for background database checks from relevant federal agencies.', cat: 'checks' },
       FN: { name: 'Fingerprint / Agency Checks Ordered', desc: 'Fingerprinting and background agency checks have been ordered as part of standard adjudication.', cat: 'checks' },
       FNA: { name: 'Fingerprint Appointment Notice Ordered', desc: 'A biometrics (fingerprint) appointment notice has been ordered and will be mailed to the applicant.', cat: 'checks' },
