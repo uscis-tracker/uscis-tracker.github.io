@@ -36,12 +36,25 @@ jobs:
         run: |
           mkdir -p _site
           if [ "${{ github.ref_name }}" = "staging" ]; then
-            # For the staging branch, place the site files into a 'staging' subdirectory so it is served at /staging/
+            # Copy staging files (current checkout) to _site/staging/
             mkdir -p _site/staging
-            rsync -av --exclude='_site' --exclude='.git' --exclude='.github' --exclude='staging' ./ _site/staging/
+            rsync -av --exclude='_site' --exclude='.git' --exclude='.github' ./ _site/staging/
+            
+            # Fetch and copy main files (production) to _site/
+            mkdir -p temp_main
+            git clone --branch main --depth 1 https://github.com/uscis-tracker/uscis-tracker.github.io.git temp_main
+            rsync -av --exclude='.git' --exclude='.github' temp_main/ _site/
+            rm -rf temp_main
           else
-            # For the main branch, deploy production to the root, and also preserve the staging folder if it exists in the repo
+            # Copy main files (current checkout) to _site/
             rsync -av --exclude='_site' --exclude='.git' --exclude='.github' ./ _site/
+            
+            # Fetch and copy staging files to _site/staging/
+            mkdir -p temp_staging
+            git clone --branch staging --depth 1 https://github.com/uscis-tracker/uscis-tracker.github.io.git temp_staging
+            mkdir -p _site/staging
+            rsync -av --exclude='.git' --exclude='.github' temp_staging/ _site/staging/
+            rm -rf temp_staging
           fi
 
       - name: Upload Artifact
