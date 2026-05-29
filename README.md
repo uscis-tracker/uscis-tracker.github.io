@@ -232,18 +232,18 @@ xdg-open index.html
 
 ## 👤 Author
 
-**[Sohag Kumar Saha](https://sohagkumarsaha.github.io)**
+**[Synacix Labs](https://synavix-labs.github.io)**
 
 ---
 
 ## 📄 License
 
-© 2026 Sohag Kumar Saha. All Rights Reserved.
+© 2026 Synavix Labs. All Rights Reserved.
 
 ---
 
 <p align="center">
   Proudly developed with <strong>Claude AI</strong> (claude.ai)<br>
-  In close supervision with <a href="https://sohagkumarsaha.github.io"><strong>Sohag Kumar Saha</strong></a>
+  In close supervision with <a href="https://synavix-labs.github.io"><strong>Synavix Labs</strong></a>
 </p>
 

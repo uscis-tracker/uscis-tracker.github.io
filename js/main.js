@@ -148,14 +148,78 @@
       return Math.round(Math.abs(new Date(b) - new Date(a)) / 86400000);
     }
 
-    function getInfo(code) {
-      return EVENT_CODES[code] || {
-        name: `Event: ${code}`,
-        desc: `USCIS internal event code "${code}". Refer to NIEM scr:BenefitDocumentStatusCategoryCodeSimpleType v5.0 schema for the full definition.`,
-        cat: 'default'
-      };
+    function getCardInfo(formType) {
+      const ft = (formType || '').toUpperCase();
+      if (ft === 'I-485') {
+        return {
+          short: 'Green Card',
+          full: 'Permanent Resident Card (Green Card)',
+          welcomeText: 'Lawful Permanent Resident (LPR / Green Card) status has been officially granted'
+        };
+      } else if (ft === 'I-765') {
+        return {
+          short: 'EAD Card',
+          full: 'Employment Authorization Document (EAD Card)',
+          welcomeText: 'Employment Authorization status has been officially granted'
+        };
+      } else if (ft === 'I-131') {
+        return {
+          short: 'Travel Document',
+          full: 'Travel Document (Advance Parole)',
+          welcomeText: 'Travel authorization has been officially granted'
+        };
+      } else {
+        return {
+          short: 'Document/Card',
+          full: 'Document or Card',
+          welcomeText: 'benefits have been officially granted'
+        };
+      }
     }
-    function getCatStyle(cat) { return CAT_STYLE[cat] || CAT_STYLE.default; }
+
+    function getInfo(code, formType) {
+      const rawInfo = EVENT_CODES[code];
+      if (!rawInfo) {
+        return {
+          name: `Event: ${code}`,
+          desc: `USCIS internal event code "${code}". Refer to NIEM scr:BenefitDocumentStatusCategoryCodeSimpleType v5.0 schema for the full definition.`,
+          cat: 'default'
+        };
+      }
+
+      if (formType) {
+        const cardInfo = getCardInfo(formType);
+        let name = rawInfo.name;
+        let desc = rawInfo.desc;
+
+        name = name.replace(/Green Card/g, cardInfo.short);
+        
+        desc = desc.replace(/The Permanent Resident Card \(Green Card\)/gi, `The ${cardInfo.full}`);
+        desc = desc.replace(/Permanent Resident Card \(Green Card\)/gi, cardInfo.full);
+        desc = desc.replace(/Green Card/gi, cardInfo.short);
+        desc = desc.replace(/particularly Form I-485 \(Application to Register Permanent Residence or Adjust Status\)/gi, `particularly Form ${formType}`);
+        desc = desc.replace(/Lawful Permanent Resident \(LPR \/ Green Card\) status has been officially granted/gi, cardInfo.welcomeText);
+
+        return {
+          name: name,
+          desc: desc,
+          cat: rawInfo.cat
+        };
+      }
+
+      return rawInfo;
+    }
+
+    function getCatStyle(cat, formType) {
+      const style = CAT_STYLE[cat] || CAT_STYLE.default;
+      if (cat === 'card' && formType) {
+        return {
+          ...style,
+          label: getCardInfo(formType).short
+        };
+      }
+      return style;
+    }
 
     // ─────────────────────────────────────────────────────────────
     // LIVE CLOCK  (updates header every 10s)
@@ -351,7 +415,6 @@
       const adjBadge = d.ackedByAdjudicatorAndCms ? badge('badge-gold', '', 'Ack\'d by Adjudicator &amp; CMS') : badge('badge-gray', '', 'Pending');
       const premBadge = d.isPremiumProcessed ? badge('badge-purple', '', 'Premium Processing') : badge('badge-gray', '', 'Standard Processing');
       const grpBadge = d.areAllGroupStatusesComplete ? badge('badge-green', '', 'All Complete') : badge('badge-orange', '', 'Pending');
-      const travelBadge = d.areAllGroupMembersAuthorizedForTravel ? badge('badge-green', '', 'Authorized') : badge('badge-gray', '', 'Not Yet Authorized');
       const actionBadge = d.actionRequired ? badge('badge-red', '', 'Action Required!') : badge('badge-green', '', 'No Action Needed');
       const rfeBadge = (d.evidenceRequests || []).length > 0 ? badge('badge-red', '', 'Evidence Requested') : badge('badge-green', '', 'None Pending');
 
@@ -372,7 +435,6 @@
       <div class="detail-row"><span class="detail-key">Adjudicator Status</span><span class="detail-val">${adjBadge}</span></div>
       <div class="detail-row"><span class="detail-key">Processing Type</span><span class="detail-val">${premBadge}</span></div>
       <div class="detail-row"><span class="detail-key">Group Status</span><span class="detail-val">${grpBadge}</span></div>
-      <div class="detail-row"><span class="detail-key">Travel Authorization</span><span class="detail-val">${travelBadge}</span></div>
       <div class="detail-row"><span class="detail-key">Action Required</span><span class="detail-val">${actionBadge}</span></div>
       <div class="detail-row"><span class="detail-key">Evidence Requests</span><span class="detail-val">${rfeBadge}</span></div>
     </div>`;
@@ -486,8 +548,8 @@
         }
 
         // Regular event
-        const info = getInfo(item.code);
-        const style = getCatStyle(info.cat);
+        const info = getInfo(item.code, d.formType);
+        const style = getCatStyle(info.cat, d.formType);
         return `
       <div class="timeline-item">
         <div class="tl-date"><div class="tl-date-main">${dateStr}</div><div class="tl-date-time">${timeStr}</div></div>
@@ -603,7 +665,9 @@
       // Most recent standard event
       const sortedEvs = [...events].sort((a, b) => new Date(b.createdAtTimestamp || b.eventTimestamp) - new Date(a.createdAtTimestamp || a.eventTimestamp));
       const latest = sortedEvs[0];
-      const latestInfo = latest ? getInfo(latest.eventCode) : null;
+      const latestInfo = latest ? getInfo(latest.eventCode, form) : null;
+
+      const cardInfo = getCardInfo(form);
 
       // ── Build narrative dynamically ─────────────────────────
       let narrative = '';
@@ -617,7 +681,7 @@
         narrative += `</p>`;
         if (h008ts) narrative += `<p>The approval decision (event code <span class="mono" style="font-size:12px;color:var(--gold)">H008</span>) was recorded on <span class="hl">${h008ts}</span>.</p>`;
         if (hasCardProduced) {
-          narrative += `<p>The Permanent Resident Card (Green Card) has been <span class="hl-g">produced</span>`;
+          narrative += `<p>The ${cardInfo.full} has been <span class="hl-g">produced</span>`;
           if (ldaTs) narrative += ` on <span class="hl">${ldaTs}</span>`;
           narrative += `.`;
           if (hasCardMailed) {
@@ -638,10 +702,10 @@
         if (interviewWaived) {
           narrative += ` The interview was waived and USCIS issued a direct approval based on the evidence on record.`;
         }
-        narrative += ` The case record remains open, which typically means the Green Card is still being processed or mailed.</p>`;
+        narrative += ` The case record remains open, which typically means the ${cardInfo.short} is still being processed or mailed.</p>`;
         if (h008ts) narrative += `<p>Approval decision (event code <span class="mono" style="font-size:12px;color:var(--gold)">H008</span>) recorded on <span class="hl">${h008ts}</span>.</p>`;
         if (hasCardProduced && ldaTs) {
-          narrative += `<p>Green Card produced on <span class="hl">${ldaTs}</span>.`;
+          narrative += `<p>${cardInfo.short} produced on <span class="hl">${ldaTs}</span>.`;
           if (hasCardMailed && leaTs) narrative += ` Card mailed on <span class="hl">${leaTs}</span> — expected delivery within 7–10 business days.`;
           narrative += `</p>`;
         }
@@ -713,7 +777,7 @@
     <div class="sum-body">
       ${narrative}
       ${latestInfo ? `<p>Most recent system event: <strong>${latestInfo.name}</strong> (code: <span class="mono" style="color:var(--gold);font-size:12px">${latest.eventCode}</span>), recorded on <span class="hl">${f(latest.createdAtTimestamp || latest.eventTimestamp)}</span>.</p>` : ''}
-      <p>Case record last updated: <strong>${lastUpdStr}</strong>. Travel authorization status: <strong>${d.areAllGroupMembersAuthorizedForTravel ? '✓ Authorized' : 'Not yet authorized'}</strong>.</p>
+      <p>Case record last updated: <strong>${lastUpdStr}</strong>.</p>
       ${d.actionRequired
           ? `<p><span class="hl-r">⚠ USCIS has flagged this case as requiring action. Please log in to your USCIS online account immediately.</span></p>`
           : `<p style="color:var(--green)">✓ No action is required from you at this time. Continue monitoring your USCIS online account for updates.</p>`
