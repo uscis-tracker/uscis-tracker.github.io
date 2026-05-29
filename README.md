@@ -244,6 +244,6 @@ xdg-open index.html
 
 <p align="center">
   Proudly developed with <strong>Claude AI</strong> (claude.ai)<br>
-  In close supervision with <a href="https://synavix-labs.github.io"><strong>Sohag Kumar Saha</strong></a>
+  In close supervision with <a href="https://synavix-labs.github.io"><strong>Synavix Labs</strong></a>
 </p>
 
